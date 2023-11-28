@@ -1,6 +1,7 @@
 import networkx as nx
-import matplotlib
-matplotlib.use('TkAgg')  # Use the TkAgg backend
+import matplotlib as plt
+from Dijkstra import dijkstra
+plt.use('TkAgg')  # Use the TkAgg backend
 
 
 def read_nodes(file_path, max_lines=200):
@@ -42,11 +43,11 @@ def create_graph(nodes, edges):
 
 def draw_graph(G):
     node_positions = nx.get_node_attributes(G, 'pos')
-    # nx.draw_networkx(G, node_positions, with_labels=True, font_weight='bold', node_size=700, node_color='skyblue', font_size=8, font_color='black', edge_color='gray')
+    #nx.draw_networkx(G, node_positions, with_labels=True, font_weight='bold', node_size=700, node_color='skyblue', font_size=8, font_color='black', edge_color='gray')
     nx.draw_networkx(G)
     labels = nx.get_edge_attributes(G, 'distance')
     nx.draw_networkx_edge_labels(G, node_positions, edge_labels=labels)
-    plt.show()
+
 
 def main():
     # File paths
@@ -62,6 +63,27 @@ def main():
 
     # Draw the graph
     draw_graph(graph)
+    #dijkstra(edges)
+
+    # graph = {
+    #     'A': {'B': 1, 'C': 4},
+    #     'B': {'A': 1, 'C': 2, 'D': 5},
+    #     'C': {'A': 4, 'B': 2, 'D': 1},
+    #     'D': {'B': 5, 'C': 1}
+    # }
+    #
+    # start_node = 'A'
+    # distances, predecessors = dijkstra(graph, start_node)
+    #
+    # # Print the shortest paths and distances
+    # for node in graph:
+    #     path = []
+    #     current_node = node
+    #     while current_node is not None:
+    #         path.insert(0, current_node)
+    #         current_node = predecessors[current_node]
+    #
+    #     print(f"Shortest path from {start_node} to {node}: {path}, Distance: {distances[node]}")
 
 if __name__ == "__main__":
     main()

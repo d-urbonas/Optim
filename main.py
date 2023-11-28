@@ -1,21 +1,32 @@
 import networkx as nx
-import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('TkAgg')  # Use the TkAgg backend
 
-def read_nodes(file_path):
+
+def read_nodes(file_path, max_lines=200):
     nodes = {}
     with open(file_path, 'r') as file:
-        for line in file:
+        for line_num, line in enumerate(file, start=1):
+            if line_num > max_lines:
+                break
+
             node_id, longitude, latitude = map(float, line.strip().split())
             nodes[node_id] = {'longitude': longitude, 'latitude': latitude}
+
     return nodes
 
-def read_edges(file_path):
+def read_edges(file_path, max_lines=100):
     edges = []
     with open(file_path, 'r') as file:
-        for line in file:
+        for line_num, line in enumerate(file, start=1):
+            if line_num > max_lines:
+                break
+
             node1, node2, distance, duration = map(float, line.strip().split())
             edges.append((node1, node2, {'distance': distance, 'duration': duration}))
+
     return edges
+
 
 def create_graph(nodes, edges):
     G = nx.Graph()

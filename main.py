@@ -1,9 +1,9 @@
 import networkx as nx
 import matplotlib
 matplotlib.use('TkAgg')  # Use the TkAgg backend
+import matplotlib.pyplot as plt
 
-
-def read_nodes(file_path, max_lines=200):
+def read_nodes(file_path, max_lines=1500):
     nodes = {}
     with open(file_path, 'r') as file:
         for line_num, line in enumerate(file, start=1):
@@ -11,9 +11,10 @@ def read_nodes(file_path, max_lines=200):
                 break
 
             node_id, longitude, latitude = map(float, line.strip().split())
-            nodes[node_id] = {'longitude': longitude, 'latitude': latitude}
+            nodes[node_id] = (latitude, longitude)
 
     return nodes
+
 
 def read_edges(file_path, max_lines=100):
     edges = []
@@ -40,13 +41,15 @@ def create_graph(nodes, edges):
 
     return G
 
+
 def draw_graph(G):
     node_positions = nx.get_node_attributes(G, 'pos')
-    # nx.draw_networkx(G, node_positions, with_labels=True, font_weight='bold', node_size=700, node_color='skyblue', font_size=8, font_color='black', edge_color='gray')
-    nx.draw_networkx(G)
+    nx.draw_networkx(G, node_positions, with_labels=False, node_size=25, node_color='skyblue', font_size=8, font_color='black', edge_color='gray')
+    # nx.draw_networkx(G)
     labels = nx.get_edge_attributes(G, 'distance')
     nx.draw_networkx_edge_labels(G, node_positions, edge_labels=labels)
     plt.show()
+
 
 def main():
     # File paths
@@ -63,8 +66,6 @@ def main():
     # Draw the graph
     draw_graph(graph)
 
+
 if __name__ == "__main__":
     main()
-
-
-    

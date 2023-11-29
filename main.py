@@ -1,18 +1,16 @@
 import networkx as nx
-import matplotlib as plt
+import matplotlib
+import matplotlib.pyplot as plt
 from Dijkstra import dijkstra
-plt.use('TkAgg')  # Use the TkAgg backend
+matplotlib.use('TkAgg')  # Use the TkAgg backend
 
 
-def read_nodes(file_path, max_lines=200):
+def read_nodes(file_path):
     nodes = {}
     with open(file_path, 'r') as file:
-        for line_num, line in enumerate(file, start=1):
-            if line_num > max_lines:
-                break
-
+        for line in file:
             node_id, longitude, latitude = map(float, line.strip().split())
-            nodes[node_id] = {'longitude': longitude, 'latitude': latitude}
+            nodes[node_id] = (longitude, latitude)
 
     return nodes
 
@@ -22,9 +20,8 @@ def read_edges(file_path, max_lines=100):
         for line_num, line in enumerate(file, start=1):
             if line_num > max_lines:
                 break
-
-            node1, node2, distance, duration = map(float, line.strip().split())
-            edges.append((node1, node2, {'distance': distance, 'duration': duration}))
+            edgeID, node1, node2, weight = map(float, line.strip().split())
+            edges.append((node1, node2, weight))
 
     return edges
 
@@ -47,12 +44,13 @@ def draw_graph(G):
     nx.draw_networkx(G)
     labels = nx.get_edge_attributes(G, 'distance')
     nx.draw_networkx_edge_labels(G, node_positions, edge_labels=labels)
+    plt.show()
 
 
 def main():
     # File paths
-    nodes_file = 'master_nodes.txt'
-    edges_file = 'master_edges.txt'
+    nodes_file = './input/first_100_edges.txt'
+    edges_file = './input/edges.txt'
 
     # Read nodes and edges from files
     nodes = read_nodes(nodes_file)

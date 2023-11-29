@@ -14,16 +14,20 @@ def read_nodes(file_path):
 
     return nodes
 
-def read_edges(file_path, max_lines=100):
+def read_edges(file_path, max_lines=180000):
+    adjacency_list = {}
     edges = []
     with open(file_path, 'r') as file:
         for line_num, line in enumerate(file, start=1):
             if line_num > max_lines:
                 break
             edgeID, node1, node2, weight = map(float, line.strip().split())
-            edges.append((node1, node2, weight))
+            edges.append((node1, node2, {'distance': weight}))
+            if node1 not in adjacency_list:
+                adjacency_list[node1] = []
+            adjacency_list[node1].append((node2, weight))
 
-    return edges
+    return edges, adjacency_list
 
 
 def create_graph(nodes, edges):
@@ -40,21 +44,19 @@ def create_graph(nodes, edges):
 
 def draw_graph(G):
     node_positions = nx.get_node_attributes(G, 'pos')
-    #nx.draw_networkx(G, node_positions, with_labels=True, font_weight='bold', node_size=700, node_color='skyblue', font_size=8, font_color='black', edge_color='gray')
-    nx.draw_networkx(G)
-    labels = nx.get_edge_attributes(G, 'distance')
-    nx.draw_networkx_edge_labels(G, node_positions, edge_labels=labels)
+    fig, ax = plt.subplots(figsize=(20, 15))  # Adjust the size as needed
+    nx.draw_networkx(G, node_positions, with_labels=False, node_size=1, node_color='skyblue', font_size=1, font_color='black', edge_color='gray', ax=ax)
     plt.show()
 
 
 def main():
     # File paths
-    nodes_file = './input/first_100_edges.txt'
+    nodes_file = './input/all_edges.txt'
     edges_file = './input/edges.txt'
 
     # Read nodes and edges from files
     nodes = read_nodes(nodes_file)
-    edges = read_edges(edges_file)
+    edges, adjacencyList = read_edges(edges_file)
 
     # Create graph
     graph = create_graph(nodes, edges)

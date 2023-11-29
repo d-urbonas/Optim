@@ -16,7 +16,7 @@ def dijkstra(graph, start):
         if current_distance > distances[current_node]:
             continue
 
-        for neighbor, weight in graph[current_node].items():
+        for neighbor, weight in graph[current_node]:
             distance = current_distance + weight
 
             # If a shorter path is found

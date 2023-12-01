@@ -1,6 +1,6 @@
 import heapq
 
-def dijkstra(graph, start):
+def dijkstra(graph, start, end):
     # Initialize distances and predecessors
     distances = {node: float('infinity') for node in graph}
     predecessors = {node: None for node in graph}
@@ -16,7 +16,7 @@ def dijkstra(graph, start):
         if current_distance > distances[current_node]:
             continue
 
-        for neighbor, weight in graph[current_node].items():
+        for neighbor, weight in graph[current_node]:
             distance = current_distance + weight
 
             # If a shorter path is found
@@ -26,3 +26,16 @@ def dijkstra(graph, start):
                 heapq.heappush(priority_queue, (distance, neighbor))
 
     return distances, predecessors
+
+def get_shortest_path(predecessors, start, end):
+    path = []
+    current_node = end
+
+    while current_node is not None:
+        path.insert(0, current_node)  # Insert at the beginning to reverse the path
+        current_node = predecessors[current_node]
+
+    if path[0] == start:
+        return path
+    else:
+        return []  # No path found

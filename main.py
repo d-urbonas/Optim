@@ -1,7 +1,9 @@
 import networkx as nx
 import matplotlib
 import matplotlib.pyplot as plt
-from Dijkstra import dijkstra
+from Dijkstra import dijkstra, get_shortest_path
+from AStar import astar
+import time
 matplotlib.use('TkAgg')  # Use the TkAgg backend
 
 
@@ -23,9 +25,13 @@ def read_edges(file_path, max_lines=180000):
                 break
             edgeID, node1, node2, weight = map(float, line.strip().split())
             edges.append((node1, node2, {'distance': weight}))
+
             if node1 not in adjacency_list:
                 adjacency_list[node1] = []
+            if node2 not in adjacency_list:
+                adjacency_list[node2] = []
             adjacency_list[node1].append((node2, weight))
+            adjacency_list[node2].append((node1, weight))
 
     return edges, adjacency_list
 
@@ -42,48 +48,61 @@ def create_graph(nodes, edges):
 
     return G
 
-def draw_graph(G):
+def draw_graph(G, path_edges=None, path=None):
     node_positions = nx.get_node_attributes(G, 'pos')
-    fig, ax = plt.subplots(figsize=(20, 15))  # Adjust the size as needed
-    nx.draw_networkx(G, node_positions, with_labels=False, node_size=1, node_color='skyblue', font_size=1, font_color='black', edge_color='gray', ax=ax)
+    fig, ax = plt.subplots(figsize=(10, 7))  # Adjust the size as needed
+
+    # Draw the graph
+    nx.draw_networkx(G, node_positions, with_labels=False, node_size=1, node_color='skyblue', font_size=6, font_color='black', edge_color='gray', ax=ax)
+
+    # Highlight the shortest path
+    if path_edges:
+        nx.draw_networkx_edges(G, edgelist=path_edges, edge_color='black', width=2, pos=node_positions)  # Include pos=node_positions
+    if path:
+        nx.draw_networkx_nodes(G, nodelist=path, node_size=1, node_color='red', pos=node_positions)
+
     plt.show()
 
 
+def color_path(G, path):
+    path_edges = [(path[i], path[i+1]) for i in range(len(path)-1)]
+    return path_edges
+
+
 def main():
-    # File paths
-    nodes_file = './input/all_edges.txt'
-    edges_file = './input/edges.txt'
+    print("Welcome to Optim")
+    nodes_file = input("Enter the node file.\n")
+    edges_file = input("Enter the edge file.\n")
 
     # Read nodes and edges from files
     nodes = read_nodes(nodes_file)
     edges, adjacencyList = read_edges(edges_file)
 
-    # Create graph
+    road_trip = input("Enter all node values that you want to visit, in the order you want to visit them. Ex: \"24 65 75 90\"\n").split()
+    algorithm = int(input("1. Dijkstra's\n2. A*\n"))
+
+    # TODO CALL THE ALGORITHMS MULTIPLE TIMES
+    if algorithm == 1:
+        start = time.time()
+        distances, predecessors = dijkstra(adjacencyList, int(road_trip[0]), int(road_trip[-1]))
+        end = time.time()
+        path = get_shortest_path(predecessors, int(road_trip[0]), int(road_trip[-1]))
+        print(end - start)
+
+    elif algorithm == 2:
+        start = time.time()
+        path = astar(adjacencyList, int(road_trip[0]), int(road_trip[-1]), nodes)
+        end = time.time()
+        print(end - start)
+
+    # create Graph
     graph = create_graph(nodes, edges)
 
-    # Draw the graph
-    draw_graph(graph)
-    #dijkstra(edges)
+    path_edges = color_path(graph, path)
 
-    # graph = {
-    #     'A': {'B': 1, 'C': 4},
-    #     'B': {'A': 1, 'C': 2, 'D': 5},
-    #     'C': {'A': 4, 'B': 2, 'D': 1},
-    #     'D': {'B': 5, 'C': 1}
-    # }
-    #
-    # start_node = 'A'
-    # distances, predecessors = dijkstra(graph, start_node)
-    #
-    # # Print the shortest paths and distances
-    # for node in graph:
-    #     path = []
-    #     current_node = node
-    #     while current_node is not None:
-    #         path.insert(0, current_node)
-    #         current_node = predecessors[current_node]
-    #
-    #     print(f"Shortest path from {start_node} to {node}: {path}, Distance: {distances[node]}")
+    # Draw the graph
+    draw_graph(graph, path_edges, path)
+
 
 if __name__ == "__main__":
     main()

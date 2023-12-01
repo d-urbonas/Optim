@@ -1,0 +1,4 @@
+./input/all_edges.txt
+./input/edges.txt
+24 456 3098
+2

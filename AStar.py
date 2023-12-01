@@ -9,7 +9,7 @@ def astar(graph, start, goal, nodes):
     open_set = [(heuristic(nodes, start, goal), start)]  # start with beginning node and its heuristic cost
 
     # Cost and predecessors dictionaries
-    g_cost = {node: float('inf') for node in graph}
+    g_cost = {node: float('inf') for node in graph} # current cost found so far (same a dijkstra's cost)
     g_cost[start] = 0
     predecessors = {node: None for node in graph}
 
@@ -43,6 +43,6 @@ def reconstruct_path(predecessors, goal):
 
 
 # heuristic (Manhattan distance in this case)
-def heuristic(nodes, current, goal):
+def heuristic(nodes, current, goal):  # constant time function as nodes is a hashmap
     return abs(nodes[current][0] - nodes[goal][0]) + abs(nodes[current][1] - nodes[goal][1])
 

@@ -52,14 +52,14 @@ def draw_graph(G, path_edges=None, path=None):
     node_positions = nx.get_node_attributes(G, 'pos')
     fig, ax = plt.subplots(figsize=(10, 7))  # Adjust the size as needed
 
-    # Draw the graph
+    # Draws the graph
     nx.draw_networkx(G, node_positions, with_labels=False, node_size=1, node_color='skyblue', font_size=6, font_color='black', edge_color='gray', ax=ax)
 
-    # Highlight the shortest path
+    # Highlights the shortest path
     if path_edges:
         nx.draw_networkx_edges(G, edgelist=path_edges, edge_color='black', width=2, pos=node_positions)  # Include pos=node_positions
     if path:
-        nx.draw_networkx_nodes(G, nodelist=path, node_size=1, node_color='red', pos=node_positions)
+        nx.draw_networkx_nodes(G, nodelist=path, node_size=1, node_color='red', pos=node_positions) # use another path list to highlight key nodes on roadtrip
 
     plt.show()
 

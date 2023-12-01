@@ -1,4 +1,4 @@
-import heapq
+import heapq # min heap by default
 
 def dijkstra(graph, start, end):
     # Initialize distances and predecessors

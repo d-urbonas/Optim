@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from Dijkstra import dijkstra, get_shortest_path
 from AStar import astar
 import time
+from matplotlib.animation import FuncAnimation
 matplotlib.use('TkAgg')  # Use the TkAgg backend
 
 
@@ -50,21 +51,33 @@ def create_graph(nodes, edges):
 
 def draw_graph(G, path_edges=None, path=None):
     node_positions = nx.get_node_attributes(G, 'pos')
-    fig, ax = plt.subplots(figsize=(10, 7))  # Adjust the size as needed
+    fig, ax = plt.subplots(figsize=(10, 7))  # set custom window size so not tiny by default
 
     # Draws the graph
     nx.draw_networkx(G, node_positions, with_labels=False, node_size=1, node_color='skyblue', font_size=6, font_color='black', edge_color='gray', ax=ax)
 
-    # Highlights the shortest path
-    if path_edges:
-        nx.draw_networkx_edges(G, edgelist=path_edges, edge_color='black', width=2, pos=node_positions)  # Include pos=node_positions
-    if path:
-        nx.draw_networkx_nodes(G, nodelist=path, node_size=1, node_color='red', pos=node_positions) # use another path list to highlight key nodes on roadtrip
+    nodesPerFrame = len(path) // 10  # used to make animation always take the number of frames as defined by the denominator (could require additional frame)
+
+    animation = FuncAnimation(fig, animate_path(G, path_edges, path, node_positions, nodesPerFrame),  # citing mat plot lib documentation
+                         12, interval=10, repeat=False)
 
     plt.show()
 
+def animate_path(G, path_edges, path, node_positions, nodesPerFrame):  # citing matplotlib animation documentation
+    def update(frame):
+        if frame > 0:
+            # path_edges[:(frame * nodesPerFrame)]  this allows all animations to finish in 10/11 frames as nodesPerFrame
+            # is dependent on the len of the path and so this always scales proportionally.
+            if path_edges:  # color edges in path blacl
+                nx.draw_networkx_edges(G, edgelist=path_edges[:(frame*nodesPerFrame)], edge_color='black', width=2,
+                                       pos=node_positions)
+            if path:  # color nodes in path orange
+                nx.draw_networkx_nodes(G, nodelist=path[:(frame*nodesPerFrame)], node_size=1, node_color='#ff6600', # dark orange, UF colors yessirski
+                                       pos=node_positions)  # use another path list to highlight key nodes on roadtrip
 
-def color_path(G, path):
+    return update  # returns the result of update which is the argument needed for FuncAnimation function
+
+def color_path(G, path):  # organizes edges to be colored in way such that they can be pased into networkx function as edge list
     path_edges = [(path[i], path[i+1]) for i in range(len(path)-1)]
     return path_edges
 

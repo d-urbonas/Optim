@@ -1,4 +1,4 @@
 ./input/all_edges.txt
 ./input/edges.txt
-24 456 30983 103423
+456 30983 107423
 2

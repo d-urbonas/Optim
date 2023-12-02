@@ -54,6 +54,21 @@ def create_graph(nodes, edges):
 def draw_graph(G, path_edges=None, path=None):
     node_positions = nx.get_node_attributes(G, 'pos')
     fig, ax = plt.subplots(figsize=(10, 7))  # set custom window size so not tiny by default
+    
+    # write notes to screen
+    notes_file = "node_notes.csv"
+    with open(notes_file, mode='r') as cur_file:
+        csv_reader = csv.reader(cur_file, delimiter=',')
+        line_count = 0
+        cur_y = 40
+
+        for row in csv_reader:
+            node = row[0]
+            note = row[1]
+
+            ax.text(100, cur_y, f'{node:{8}} | {note} ')
+            cur_y += 400
+
 
     # Draws the graph
     nx.draw_networkx(G, node_positions, with_labels=False, node_size=1, node_color='skyblue', font_size=6, font_color='black', edge_color='gray', ax=ax)
@@ -97,9 +112,9 @@ def main():
         if option == 2:
             temp = int(input("Input Node:\n"))
             message = input("Input Note:\n")
-            # TODO do something with this
             # Write node note to notes file
-            with open(notes_file, mode='w') as cur_file:
+
+            with open(notes_file, mode='a') as cur_file:
                 csv_writer = csv.writer(cur_file, delimiter=',')
                 new_row = []
                 new_row.append(temp)

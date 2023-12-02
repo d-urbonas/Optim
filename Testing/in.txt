@@ -1,4 +1,6 @@
 ./input/all_edges.txt
 ./input/edges.txt
-456 30983 107423
-2
+1
+428 100234 5689
+1
+3

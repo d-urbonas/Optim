@@ -86,35 +86,46 @@ def main():
     print("Welcome to Optim")
     nodes_file = input("Enter the node file.\n")
     edges_file = input("Enter the edge file.\n")
+    option = 0
+    while option != 3:
+        option = int(input("1. Calculate a Trip\n2. Add a note\n3. Exit\n"))
 
-    # Read nodes and edges from files
-    nodes = read_nodes(nodes_file)
-    edges, adjacencyList = read_edges(edges_file)
+        if option == 2:
+            temp = int(input("Input Node:\n"))
+            message = input("Input Note:\n")
+            # TODO do something with this
 
-    road_trip = input("Enter all node values that you want to visit, in the order you want to visit them. Ex: \"24 65 75 90\"\n").split()
-    algorithm = int(input("1. Dijkstra's\n2. A*\n"))
+        elif option == 1:
+            # Read nodes and edges from files
+            nodes = read_nodes(nodes_file)
+            edges, adjacencyList = read_edges(edges_file)
 
-    # TODO CALL THE ALGORITHMS MULTIPLE TIMES
-    if algorithm == 1:
-        start = time.time()
-        distances, predecessors = dijkstra(adjacencyList, int(road_trip[0]), int(road_trip[-1]))
-        end = time.time()
-        path = get_shortest_path(predecessors, int(road_trip[0]), int(road_trip[-1]))
-        print(end - start)
+            road_trip = input("Enter all node values that you want to visit, in the order you want to visit them. Ex: \"24 65 75 90\"\n").split()
+            algorithm = int(input("1. Dijkstra's\n2. A*\n"))
 
-    elif algorithm == 2:
-        start = time.time()
-        path = astar(adjacencyList, int(road_trip[0]), int(road_trip[-1]), nodes)
-        end = time.time()
-        print(end - start)
+            path = []
+            for i in range(len(road_trip) - 1):
+                node1 = road_trip[i]
+                node2 = road_trip[i + 1]
+                if algorithm == 1:
+                    start = time.time()
+                    distances, predecessors = dijkstra(adjacencyList, int(node1), int(node2))
+                    end = time.time()
+                    path.extend(get_shortest_path(predecessors, int(node1), int(node2)))
+                    #print(end - start)
+                elif algorithm == 2:
+                    start = time.time()
+                    path.extend(astar(adjacencyList, int(node1), int(node1), nodes))
+                    end = time.time()
+                    #print(end - start)
 
-    # create Graph
-    graph = create_graph(nodes, edges)
+            # create Graph
+            graph = create_graph(nodes, edges)
 
-    path_edges = color_path(graph, path)
+            path_edges = color_path(graph, path)
 
-    # Draw the graph
-    draw_graph(graph, path_edges, path)
+            # Draw the graph
+            draw_graph(graph, path_edges, path)
 
 
 if __name__ == "__main__":

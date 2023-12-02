@@ -4,7 +4,9 @@ import matplotlib.pyplot as plt
 from Dijkstra import dijkstra, get_shortest_path
 from AStar import astar
 import time
+import csv
 from matplotlib.animation import FuncAnimation
+
 matplotlib.use('TkAgg')  # Use the TkAgg backend
 
 
@@ -86,6 +88,8 @@ def main():
     print("Welcome to Optim")
     nodes_file = input("Enter the node file.\n")
     edges_file = input("Enter the edge file.\n")
+    notes_file = "node_notes.csv"
+
     option = 0
     while option != 3:
         option = int(input("1. Calculate a Trip\n2. Add a note\n3. Exit\n"))
@@ -94,6 +98,14 @@ def main():
             temp = int(input("Input Node:\n"))
             message = input("Input Note:\n")
             # TODO do something with this
+            # Write node note to notes file
+            with open(notes_file, mode='w') as cur_file:
+                csv_writer = csv.writer(cur_file, delimiter=',')
+                new_row = []
+                new_row.append(temp)
+                new_row.append(message)
+
+                csv_writer.writerow(new_row)
 
         elif option == 1:
             # Read nodes and edges from files

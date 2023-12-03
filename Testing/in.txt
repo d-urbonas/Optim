@@ -1,4 +1,12 @@
-./input/all_edges.txt
-./input/edges.txt
-456 30983 107423
+oldenburg_nodes.txt
+oldenburg_edges.txt
 2
+23
+yuhyuhyuhyuhyuhyy
+2
+1000
+huhhuh
+1
+12 23 3450 543 5403 24 1000 2000 4000 4500
+2
+3

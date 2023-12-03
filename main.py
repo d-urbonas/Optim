@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from Dijkstra import dijkstra, get_shortest_path
 from AStar import astar
 import time
+import csv
 from matplotlib.animation import FuncAnimation
 matplotlib.use('TkAgg')  # Use the TkAgg backend
 
@@ -49,9 +50,45 @@ def create_graph(nodes, edges):
 
     return G
 
-def draw_graph(G, path_edges=None, path=None):
+
+def draw_graph(G, time, algorithm, notes_file, path_edges=None, path=None):
     node_positions = nx.get_node_attributes(G, 'pos')
     fig, ax = plt.subplots(figsize=(10, 7))  # set custom window size so not tiny by default
+    ax.axis("off")
+
+    # write time
+    if algorithm == 1:
+        ax.text(5000, -2000, f"Dijkstra's Algorithm Took {time} Seconds.")
+    elif algorithm == 2:
+        ax.text(5000, -2000, f"AStar Algorithm Took {time} Seconds.")
+
+    # write notes to screen
+    with open(notes_file, mode='r') as cur_file:
+        csv_reader = csv.reader(cur_file, delimiter=',')
+        cur_y = -1200
+
+        notes_dict = {}
+
+        for row in csv_reader:
+            node = row[0]
+            note = row[1]
+
+            notes_dict[node] = note
+
+    notes_keys = []
+    for key in notes_dict.keys():
+        notes_keys.append(int(key))
+
+    visited = set()
+    ax.text(-2300, cur_y - 400, "----------------------")
+    ax.text(-2000, cur_y - 800, "Trip Notes")
+    for node_v in path:
+        if int(node_v) in notes_keys:
+            if int(node_v) not in visited:
+                visited.add(int(node_v))
+                ax.text(-3000, cur_y, f'{int(node_v):{8}} | {notes_dict[str(int(node_v))]} ')
+                cur_y += 400
+
 
     # Draws the graph
     nx.draw_networkx(G, node_positions, with_labels=False, node_size=1, node_color='skyblue', font_size=6, font_color='black', edge_color='gray', ax=ax)
@@ -84,8 +121,11 @@ def color_path(G, path):  # organizes edges to be colored in way such that they 
 
 def main():
     print("Welcome to Optim")
-    nodes_file = input("Enter the node file.\n")
-    edges_file = input("Enter the edge file.\n")
+    nodes_file = "./input/" + input("Enter the node file.\n")
+    edges_file = "./input/" + input("Enter the edge file.\n")
+    notes_file = "./notes/" + edges_file[8:-4] + ".csv"
+    file = open(notes_file, 'a')
+    file.close()
     option = 0
     while option != 3:
         option = int(input("1. Calculate a Trip\n2. Add a note\n3. Exit\n"))
@@ -93,7 +133,15 @@ def main():
         if option == 2:
             temp = int(input("Input Node:\n"))
             message = input("Input Note:\n")
-            # TODO do something with this
+            # Write node note to notes file
+
+            with open(notes_file, mode='a') as cur_file:
+                csv_writer = csv.writer(cur_file, delimiter=',')
+                new_row = []
+                new_row.append(temp)
+                new_row.append(message)
+
+                csv_writer.writerow(new_row)
 
         elif option == 1:
             # Read nodes and edges from files
@@ -104,20 +152,20 @@ def main():
             algorithm = int(input("1. Dijkstra's\n2. A*\n"))
 
             path = []
+            difference = 0
+            start = time.time()
             for i in range(len(road_trip) - 1):
                 node1 = road_trip[i]
                 node2 = road_trip[i + 1]
                 if algorithm == 1:
-                    start = time.time()
                     distances, predecessors = dijkstra(adjacencyList, int(node1), int(node2))
-                    end = time.time()
                     path.extend(get_shortest_path(predecessors, int(node1), int(node2)))
-                    #print(end - start)
                 elif algorithm == 2:
                     start = time.time()
-                    path.extend(astar(adjacencyList, int(node1), int(node1), nodes))
+                    path.extend(astar(adjacencyList, int(node1), int(node2), nodes))
                     end = time.time()
-                    #print(end - start)
+            end = time.time()
+            difference = end - start
 
             # create Graph
             graph = create_graph(nodes, edges)
@@ -125,7 +173,7 @@ def main():
             path_edges = color_path(graph, path)
 
             # Draw the graph
-            draw_graph(graph, path_edges, path)
+            draw_graph(graph, difference, algorithm, notes_file, path_edges, path)
 
 
 if __name__ == "__main__":

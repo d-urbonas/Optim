@@ -54,20 +54,33 @@ def create_graph(nodes, edges):
 def draw_graph(G, path_edges=None, path=None):
     node_positions = nx.get_node_attributes(G, 'pos')
     fig, ax = plt.subplots(figsize=(10, 7))  # set custom window size so not tiny by default
-    
+
     # write notes to screen
     notes_file = "node_notes.csv"
     with open(notes_file, mode='r') as cur_file:
         csv_reader = csv.reader(cur_file, delimiter=',')
-        line_count = 0
         cur_y = 40
+
+        notes_dict = {}
 
         for row in csv_reader:
             node = row[0]
             note = row[1]
 
-            ax.text(100, cur_y, f'{node:{8}} | {note} ')
-            cur_y += 400
+            notes_dict[node] = note
+
+    notes_keys = []
+    for key in notes_dict.keys():
+        notes_keys.append(int(key))
+
+    visited = set()
+
+    for node_v in path:
+        if int(node_v) in notes_keys:
+            if int(node_v) not in visited:
+                visited.add(int(node_v))
+                ax.text(100, cur_y, f'{int(node_v):{8}} | {notes_dict[str(int(node_v))]} ')
+                cur_y += 400
 
 
     # Draws the graph

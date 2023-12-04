@@ -66,32 +66,41 @@ def draw_graph(G, time, algorithm, notes_file, path_edges=None, path=None):
         ax.text(5000, -2000, f"AStar Algorithm Took {time} Seconds.")
 
     # write notes to screen
+    
     with open(notes_file, mode='r') as cur_file:
+        # csv_reader is the object for iterating through the csv file
         csv_reader = csv.reader(cur_file, delimiter=',')
         cur_y = -1200 #default y vlaue for text
 
+        # create this dictionary to store notes
         notes_dict = {}
 
         for row in csv_reader:
             node = row[0]
             note = row[1]
 
+            # adds notes to  dictionary
             notes_dict[node] = note
 
+    # set ensures that a note is only printed once, even if the node is visited multiple times
     notes_keys = set()
     for key in notes_dict.keys():
         notes_keys.add(int(key))
 
     visited = set()
+    # printing notes on screen
     # text(x value, y value, text)
     ax.text(-2300, cur_y - 400, "----------------------")
     ax.text(-2000, cur_y - 800, "Trip Notes")
 
     # iterate through path and add a note for each hit
     for node_v in path:
+        # checks if each node has an associated note
         if int(node_v) in notes_keys:
+            # ensures node hasn't been visited
             if int(node_v) not in visited:
                 visited.add(int(node_v))
+                # prints a note
                 ax.text(-3000, cur_y, f'{int(node_v):{8}} | {notes_dict[str(int(node_v))]} ')
                 cur_y += 400
 
@@ -146,15 +155,22 @@ def main():
         if option == 2:
             temp = int(input("Input Node:\n"))
             message = input("Input Note:\n")
+            
             # Write node note to notes file
 
+            # csv_writer is object to write (append) new notes to the csv file, so that notes can be saved over time
             with open(notes_file, mode='a') as cur_file:
                 csv_writer = csv.writer(cur_file, delimiter=',', lineterminator='')
+                # represents a new row to add
                 new_row = []
+
+                # add node and note
                 new_row.append(temp)
                 new_row.append(message + '\n')
 
+                # adds new node, note pair to csv file
                 csv_writer.writerow(new_row)
+                
         # pathfinding functionality
         elif option == 1:
             # Read nodes and edges from files

@@ -201,8 +201,6 @@ def main():
             # create Graph
             graph = create_graph(nodes, edges)
 
-            print(path)
-
             path_edges = edges_to_color(path)
 
             # Draw the graph

@@ -27,15 +27,12 @@ def dijkstra(graph, start, end):
 
     return distances, predecessors
 
-def get_shortest_path(predecessors, start, end):
+def reconstruct_path(predecessors, goal):  # returns path by tracing back predecessors
     path = []
-    current_node = end
+    current_node = goal
 
     while current_node is not None:
         path.insert(0, current_node)  # Insert at the beginning to reverse the path
         current_node = predecessors[current_node]
 
-    if path[0] == start:
-        return path
-    else:
-        return []  # No path found
+    return path

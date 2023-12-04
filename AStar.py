@@ -31,7 +31,7 @@ def astar(graph, start, goal, nodes):
 
     return None  # No path found
 
-def reconstruct_path(predecessors, goal):
+def reconstruct_path(predecessors, goal):  # returns path by tracing back predecessors
     path = []
     current_node = goal
 

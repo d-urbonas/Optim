@@ -1,15 +1,16 @@
 import networkx as nx
 import matplotlib
 import matplotlib.pyplot as plt
-from Dijkstra import dijkstra, get_shortest_path
+from Dijkstra import dijkstra, reconstruct_path
 from AStar import astar
 import time
 import csv
 from matplotlib.animation import FuncAnimation
 
-matplotlib.use('TkAgg')  # Use the TkAgg backend
+matplotlib.use('TkAgg')  # Use the TkAgg backend. needed for networkx to work/integrate properly with matplotlib
 
 
+# reads all the nodes from input file and adds them to a dictionary and where the node_id is the key and the position is the value as a tuple
 def read_nodes(file_path):
     nodes = {}
     with open(file_path, 'r') as file:
@@ -20,6 +21,7 @@ def read_nodes(file_path):
     return nodes
 
 
+# reads edges from file and adds them to edges list while also creating the adj list
 def read_edges(file_path, max_lines=180000):
     adjacency_list = {}
     edges = []
@@ -30,32 +32,32 @@ def read_edges(file_path, max_lines=180000):
             edgeID, node1, node2, weight = map(float, line.strip().split())
             edges.append((node1, node2, {'distance': weight}))
 
-            if node1 not in adjacency_list:
+            if node1 not in adjacency_list:  # initialize adj list if it doesn't already exist
                 adjacency_list[node1] = []
             if node2 not in adjacency_list:
                 adjacency_list[node2] = []
-            adjacency_list[node1].append((node2, weight))
+            adjacency_list[node1].append((node2, weight))  # append both ways for undirected graph
             adjacency_list[node2].append((node1, weight))
 
     return edges, adjacency_list
 
 
 def create_graph(nodes, edges):
-    G = nx.Graph()
+    G = nx.Graph()  # creates the networkx graph object
 
-    # Add nodes with positions
+    # add each node to the graph along with the additional argument of its location to make the graph a valid map
     for node_id, pos in nodes.items():
         G.add_node(node_id, pos=pos)
 
-    # Add edges with attributes
+    # Add edges to graph all at once
     G.add_edges_from(edges)
 
     return G
 
-def draw_graph(G, time, algorithm, notes_file, path_edges=None, path=None, indexes_of_stops=None):
+def draw_graph(G, time, algorithm, notes_file, path_edges=None, path=None):
     node_positions = nx.get_node_attributes(G, 'pos')
     fig, ax = plt.subplots(figsize=(10, 7))  # set custom window size so not tiny by default
-    ax.axis("off")
+    ax.axis("off") # Turns off the graph axes
 
     # write time
     if algorithm == 1:
@@ -66,7 +68,7 @@ def draw_graph(G, time, algorithm, notes_file, path_edges=None, path=None, index
     # write notes to screen
     with open(notes_file, mode='r') as cur_file:
         csv_reader = csv.reader(cur_file, delimiter=',')
-        cur_y = -1200
+        cur_y = -1200 #default y vlaue for text
 
         notes_dict = {}
 
@@ -76,13 +78,16 @@ def draw_graph(G, time, algorithm, notes_file, path_edges=None, path=None, index
 
             notes_dict[node] = note
 
-    notes_keys = []
+    notes_keys = set()
     for key in notes_dict.keys():
-        notes_keys.append(int(key))
+        notes_keys.add(int(key))
 
     visited = set()
+    # text(x value, y value, text)
     ax.text(-2300, cur_y - 400, "----------------------")
     ax.text(-2000, cur_y - 800, "Trip Notes")
+
+    # iterate through path and add a note for each hit
     for node_v in path:
         if int(node_v) in notes_keys:
             if int(node_v) not in visited:
@@ -94,17 +99,15 @@ def draw_graph(G, time, algorithm, notes_file, path_edges=None, path=None, index
     nx.draw_networkx(G, node_positions, with_labels=False, node_size=1, node_color='skyblue', font_size=6,
                      font_color='black', edge_color='gray', ax=ax)
 
-    nodesPerFrame = len(
-        path) // 10  # used to make animation always take the number of frames as defined by the denominator (could require additional frame)
+    nodesPerFrame = len(path) // 10  # used to make animation always take the number of frames as defined by the denominator (could require additional frame)
 
-    animation = FuncAnimation(fig, animate_path(G, path_edges, path, node_positions, nodesPerFrame, indexes_of_stops),
-                              # citing mat plot lib documentation
-                              frames=12, interval=10, repeat=False)
+    animation = FuncAnimation(fig, animate_path(G, path_edges, path, node_positions, nodesPerFrame),
+                              frames=12, interval=10, repeat=False)  # citing mat plot lib documentation
 
-    plt.show()
+    plt.show()  # displays graph using matplotlib
 
 
-def animate_path(G, path_edges, path, node_positions, nodesPerFrame, indexes_of_stops):  # citing matplotlib animation documentation
+def animate_path(G, path_edges, path, node_positions, nodesPerFrame):  # citing matplotlib animation documentation
     def update(frame):
         if frame > 0:
             # path_edges[:(frame * nodesPerFrame)]  this allows all animations to finish in 10/11 frames as nodesPerFrame
@@ -121,23 +124,25 @@ def animate_path(G, path_edges, path, node_positions, nodesPerFrame, indexes_of_
     return update  # returns the result of update which is the argument needed for FuncAnimation function
 
 
-def color_path(G,
-               path):  # organizes edges to be colored in way such that they can be pased into networkx function as edge list
+def edges_to_color(path):  # organizes edges to be colored in way such that they can be pased into networkx function as edge list
     path_edges = [(path[i], path[i + 1]) for i in range(len(path) - 1)]
     return path_edges
 
 
 def main():
     print("Welcome to Optim")
+
+    # get nodes and edges, also create the csv file seeded based on the edges file name
     nodes_file = "./input/" + input("Enter the node file.\n")
     edges_file = "./input/" + input("Enter the edge file.\n")
     notes_file = "./notes/" + edges_file[8:-4] + ".csv"
+    # create the csv file if its initially empty
     file = open(notes_file, 'a')
     file.close()
     option = 0
     while option != 3:
         option = int(input("1. Calculate a Trip\n2. Add a note\n3. Exit\n"))
-
+        # note functionality
         if option == 2:
             temp = int(input("Input Node:\n"))
             message = input("Input Note:\n")
@@ -150,7 +155,7 @@ def main():
                 new_row.append(message + '\n')
 
                 csv_writer.writerow(new_row)
-
+        # pathfinding functionality
         elif option == 1:
             # Read nodes and edges from files
             nodes = read_nodes(nodes_file)
@@ -160,32 +165,32 @@ def main():
                 "Enter all node values that you want to visit, in the order you want to visit them. Ex: \"24 65 75 90\"\n").split()
             algorithm = int(input("1. Dijkstra's\n2. A*\n"))
 
-            path = []
-            indexes_of_stops = []
-            difference = 0
+            path = []  # will hold path returned from search algs
             start = time.time()
+
+            # calculates the path between each inputted node and adds it to the final path arrary
             for i in range(len(road_trip) - 1):
                 node1 = road_trip[i]
                 node2 = road_trip[i + 1]
                 if algorithm == 1:
                     distances, predecessors = dijkstra(adjacencyList, int(node1), int(node2))
-                    path.extend(get_shortest_path(predecessors, int(node1), int(node2)))
-                    indexes_of_stops.append(len(path)-1)
+                    path.extend(reconstruct_path(predecessors, int(node2)))
                 elif algorithm == 2:
                     start = time.time()
                     path.extend(astar(adjacencyList, int(node1), int(node2), nodes))
-                    indexes_of_stops.append(len(path)-1)
 
             end = time.time()
-            difference = end - start
+            difference = end - start  # calculate time used
 
             # create Graph
             graph = create_graph(nodes, edges)
 
-            path_edges = color_path(graph, path)
+            print(path)
+
+            path_edges = edges_to_color(path)
 
             # Draw the graph
-            draw_graph(graph, difference, algorithm, notes_file, path_edges, path, indexes_of_stops)
+            draw_graph(graph, difference, algorithm, notes_file, path_edges, path)
 
 
 if __name__ == "__main__":
